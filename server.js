@@ -94,4 +94,45 @@ app.get('/cancel', (req, res) => {
   })
 });
 
+app.get('/send', (req, res) => {
+  const sender_batch_id = Math.random().toString(36).substring(9);
+
+  const create_payout_json = {
+      "sender_batch_header": {
+          "sender_batch_id": sender_batch_id,
+          "email_subject": "You have a payment"
+      },
+      "items": [
+          {
+              "recipient_type": "EMAIL",
+              "amount": {
+                  "value": 8,
+                  "currency": "USD"
+              },
+              "receiver": "payment.parner@didauday.me",
+              "note": "Thank you.",
+              "sender_item_id": "item_3"
+          }
+      ]
+  };
+
+  const sync_mode = 'false';
+
+  paypal.payout.create(create_payout_json, sync_mode, function (error, payout) {
+      if (error) {
+          console.log(error.response);
+          throw error;
+          return res.status(400).json({
+            success: false
+          })
+      } else {
+          console.log("Create Single Payout Response");
+          console.log(payout);
+          return res.status(200).json({
+            success: true
+          })
+      }
+  });
+})
+
 app.listen(3000, () => console.log('Server is running'));
